@@ -1,0 +1,79 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+typedef long long ll;
+
+const int MAXN = 200005;
+vector<int> adj[MAXN];
+ll val[MAXN];
+ll subSum[MAXN];
+ll dist[MAXN];
+ll maxi = 0;
+
+// Step 1: Pre-calculate subtree sums and initial cost for root at node 1
+void precalc(int u, int p) {
+    subSum[u] = val[u];
+    dist[u] = 0;
+    for (int v : adj[u]) {
+        if (v == p) continue;
+        precalc(v, u);
+        subSum[u] += subSum[v];
+        // The cost at u includes cost of child v plus the sum of all node values in v's subtree
+        dist[u] += (dist[v] + subSum[v]);
+    }
+}
+
+// Step 2: Transition root from 'u' to its child 'v'
+void reroot(int u, int p) {
+    maxi = max(maxi, dist[u]);
+
+    for (int v : adj[u]) {
+        if (v == p) continue;
+
+        // --- Move Root from u to v ---
+        // 1. Remove v's contribution from u
+        subSum[u] -= subSum[v];
+        dist[u] -= (dist[v] + subSum[v]);
+
+          // 2. Add u's (remaining) contribution to v
+        subSum[v] += subSum[u];
+        dist[v] += (dist[u] + subSum[u]);
+          // Recurse to children
+        reroot(v,u);
+         // --- Restore (Backtrack) ---
+         subSum[v] -= subSum[u];
+        dist[v] -= (dist[u] + subSum[u]);
+
+
+        subSum[u] += subSum[v];
+        dist[u] += (dist[v] + subSum[v]);
+
+
+
+         
+    }
+}
+
+int main() {
+    int n;
+    if (!(cin >> n)) return 0;
+
+    for (int i = 1; i <= n; i++) cin >> val[i];
+
+    for (int i = 0; i < n - 1; i++) {
+        int u, v;
+        cin >> u >> v;
+        adj[u].push_back(v);
+        adj[v].push_back(u);
+    }
+
+    precalc(1, -1);
+    reroot(1, -1);
+
+    cout << maxi << endl;
+
+    return 0;
+}
