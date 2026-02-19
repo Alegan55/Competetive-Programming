@@ -1,0 +1,42 @@
+#include <vector>
+#include <iostream>
+using namespace std;
+
+class SumAllDistancesContribution {
+    long long totalSum = 0;
+    int n;
+    vector<int> sz;
+    vector<vector<int>> adj;
+
+public:
+    long long solve(int n, vector<vector<int>>& edges) {
+        this->n = n;
+        sz.resize(n);
+        adj.assign(n, vector<int>());
+        totalSum = 0;
+
+        for(auto& v: edges) {
+            adj[v[0]].push_back(v[1]);
+            adj[v[1]].push_back(v[0]);
+        }
+
+        dfs(0, -1);
+        return totalSum;
+    }
+
+    void dfs(int u, int p) {
+        sz[u] = 1;
+        for(int v : adj[u]) {
+            if(v == p) continue;
+            dfs(v, u);
+            sz[u] += sz[v];
+
+            // Contribution Logic:
+            // The edge (u-v) connects a subtree of size sz[v] 
+            // to the rest of the tree (n - sz[v]).
+            // Number of paths crossing this edge = sz[v] * (n - sz[v])
+            long long contribution = (long long)sz[v] * (n - sz[v]);
+            totalSum += contribution;
+        }
+    }
+};
