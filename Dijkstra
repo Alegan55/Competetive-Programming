@@ -1,0 +1,40 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    // V = number of vertices, S = source node
+    // adj[u] contains pairs of {neighbor, weight}
+    vector<int> dijkstra(int V, vector<vector<pair<int, int>>>& adj, int S) {
+        
+        // Min-Priority Queue: {distance, node}
+        priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
+
+        // Distance array initialized to Infinity
+        vector<int> dist(V, 1e9); 
+
+        dist[S] = 0;
+        pq.push({0, S});
+
+        while (!pq.empty()) {
+            int d = pq.top().first;
+            int u = pq.top().second;
+            pq.pop();
+
+            // Optimization: If we found a better distance already, skip this
+            if (d > dist[u]) continue;
+
+            for (auto& edge : adj[u]) {
+                int v = edge.first;
+                int weight = edge.second;
+
+                // RELAXATION STEP
+                if (dist[u] + weight < dist[v]) {
+                    dist[v] = dist[u] + weight;
+                    pq.push({dist[v], v});
+                }
+            }
+        }
+        return dist;
+    }
+};
