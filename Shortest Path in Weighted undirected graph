@@ -1,0 +1,62 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    vector<int> shortestPath(int n, int m, vector<vector<int>>& edges) {
+        // 1. Build Adjacency List
+        // adj[u] = {v, weight}
+        vector<pair<int, int>> adj[n + 1];
+        for (auto& it : edges) {
+            adj[it[0]].push_back({it[1], it[2]});
+            adj[it[1]].push_back({it[0], it[2]});
+        }
+
+        // 2. Dijkstra Setup
+        priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
+        vector<int> dist(n + 1, 1e9);
+        vector<int> parent(n + 1);
+        
+        // Initialize parent to itself
+        for (int i = 1; i <= n; i++) parent[i] = i;
+
+        dist[1] = 0;
+        pq.push({0, 1}); // {distance, node}
+
+        while (!pq.empty()) {
+            int d = pq.top().first;
+            int u = pq.top().second;
+            pq.pop();
+
+            if (d > dist[u]) continue;
+
+            for (auto& it : adj[u]) {
+                int v = it.first;
+                int weight = it.second;
+
+                if (dist[u] + weight < dist[v]) {
+                    dist[v] = dist[u] + weight;
+                    parent[v] = u; // Store the "breadcrumb"
+                    pq.push({dist[v], v});
+                }
+            }
+        }
+
+        // 3. Path Reconstruction
+        if (dist[n] == 1e9) return {-1}; // Destination unreachable
+
+        vector<int> path;
+        int node = n;
+        
+        // Backtrack from destination to source
+        while (parent[node] != node) {
+            path.push_back(node);
+            node = parent[node];
+        }
+        path.push_back(1); // Add source node
+
+        // Reverse to get Source -> Destination order
+        reverse(path.begin(), path.end());
+        return path;
+    }
+};
