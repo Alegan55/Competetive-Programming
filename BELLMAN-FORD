@@ -1,0 +1,39 @@
+
+class BellmanFord {
+public:
+    /*
+     * n: Number of nodes
+     * edges: {u, v, weight}
+     * src: Starting node
+     * Returns: vector of distances, or empty vector if negative cycle exists
+     */
+    vector<int> findShortestPath(int n, vector<vector<int>>& edges, int src) {
+        vector<int> dist(n + 1, 1e8); // Use 1e8 to avoid overflow
+        dist[src] = 0;
+
+        // 1. Relax all edges (n-1) times
+        for (int i = 1; i <= n - 1; i++) {
+            for (auto& it : edges) {
+                int u = it[0];
+                int v = it[1];
+                int wt = it[2];
+                if (dist[u] != 1e8 && dist[u] + wt < dist[v]) {
+                    dist[v] = dist[u] + wt;
+                }
+            }
+        }
+
+        // 2. Nth relaxation to detect negative cycles
+        for (auto& it : edges) {
+            int u = it[0];
+            int v = it[1];
+            int wt = it[2];
+            if (dist[u] != 1e8 && dist[u] + wt < dist[v]) {
+                // Return an empty vector to signal a negative cycle
+                return {}; 
+            }
+        }
+
+        return dist;
+    }
+};
