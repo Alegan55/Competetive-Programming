@@ -1,3 +1,4 @@
+vector<int> parent, size;
 int findUPar(int node) {
         if (node == parent[node])
             return node;
